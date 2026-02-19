@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import PropTypes from "prop-types";
 import Comments from "./Comments";
 import CommentIcon from "../../assets/comments.svg?react";
 import UpVoteIcon from "../../assets/up.svg?react";
@@ -164,6 +165,33 @@ const Card = ({ post, subreddit }) => {
       )}
     </article>
   );
+};
+
+Card.propTypes = {
+  post: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    author: PropTypes.string.isRequired,
+    created_utc: PropTypes.number.isRequired,
+    num_comments: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
+    selftext: PropTypes.string,
+    url: PropTypes.string.isRequired,
+    ups: PropTypes.number.isRequired,
+    downs: PropTypes.number.isRequired,
+    thumbnail: PropTypes.string,
+    preview: PropTypes.shape({
+      images: PropTypes.arrayOf(
+        PropTypes.shape({
+          source: PropTypes.shape({
+            url: PropTypes.string,
+          }),
+        })
+      ),
+    }),
+  }).isRequired,
+  subreddit: PropTypes.shape({
+    display_name: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default Card;

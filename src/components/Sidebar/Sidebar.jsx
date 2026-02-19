@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   loadCurrentSubredditDetails,
@@ -17,7 +17,7 @@ const Sidebar = () => {
     if (Object.keys(subreddit).length > 0) {
       dispatch(loadCurrentSubredditDetails(subreddit.display_name));
     }
-  }, [subreddit]);
+  }, [dispatch, subreddit]);
 
   const formatDate = (timestamp) => {
     const date = new Date(timestamp * 1000);

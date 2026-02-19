@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
+import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectComments,
@@ -13,7 +14,7 @@ const Comments = ({ subredditName, postId }) => {
 
   useEffect(() => {
     dispatch(loadComments({ subredditName, postId }));
-  }, [dispatch]);
+  }, [dispatch, subredditName, postId]);
 
   const getRelativeTime = (timestamp) => {
     const now = new Date();
@@ -70,6 +71,11 @@ const Comments = ({ subredditName, postId }) => {
       )}
     </section>
   );
+};
+
+Comments.propTypes = {
+  subredditName: PropTypes.string.isRequired,
+  postId: PropTypes.string.isRequired,
 };
 
 export default Comments;
