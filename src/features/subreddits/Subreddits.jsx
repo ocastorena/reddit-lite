@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   loadSubreddits,
@@ -19,7 +19,7 @@ const Subreddits = () => {
     if (Object.keys(currentSubreddit).length === 0) {
       dispatch(loadSubreddits());
     }
-  }, []);
+  }, [currentSubreddit, dispatch]);
 
   return (
     <>
