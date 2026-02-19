@@ -1,58 +1,52 @@
 # Reddit Lite
 
-Welcome to the Reddit Lite project! This project is a simplified version of the popular social media platform, Reddit.
+Reddit Lite is a small React + Redux app that lets users browse posts, open comments, and use a responsive Reddit-style UI.
 
-## Table of Contents
+## Tech Stack
 
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Technologies Used](#technologies-used)
-- [Setup and Installation](#setup-and-installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+- React
+- Redux Toolkit
+- Tailwind CSS
+- Vite
 
-## Project Overview
+## Local Development
 
-This project is a front-end application that mimics the core functionalities of Reddit. Users can browse posts, view comments, and interact with the content.
+```sh
+npm ci
+npm run dev
+```
 
-## Features
+Open `http://localhost:5173`.
 
-- Browse and search for posts
-- View post details and comments
-- Responsive design for mobile and desktop
-- User-friendly interface
+## Scripts
 
-## Technologies Used
+- `npm run dev` - Start local dev server
+- `npm run lint` - Run ESLint
+- `npm run build` - Create production build
+- `npm run preview` - Preview production build locally
 
-- **React**: A JavaScript library for building user interfaces
-- **Redux**: A state management library for JavaScript applications
-- **React Router**: A library for routing in React applications
-- **Tailwind CSS**: A utility-first CSS framework for rapidly building custom user interfaces
-- **Webpack**: A module bundler for JavaScript applications
-- **Babel**: A JavaScript compiler that converts modern JavaScript into a version compatible with older browsers
+## CI/CD
 
-## Setup and Installation
+This repo includes two GitHub Actions workflows:
 
-To get a local copy of the project up and running, follow these steps:
+- `/.github/workflows/ci.yml`
+  - Runs on pull requests and pushes to `main`
+  - Executes `npm ci`, `npm run lint`, and `npm run build`
+- `/.github/workflows/cd.yml`
+  - Runs after `CI` succeeds on `main` (or manually via workflow dispatch)
+  - Builds and deploys `dist/` to GitHub Pages
+  - Automatically sets the correct Vite `base` path for project pages
 
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/yourusername/reddit-lite.git
-   ```
-2. Navigate to the project directory:
-   ```sh
-   cd reddit-lite
-   ```
-3. Install the dependencies:
-   ```sh
-   npm install
-   ```
-4. Start the development server:
-   ```sh
-   npm start
-   ```
+## Live Demo (GitHub Pages)
 
-## Usage
+1. In GitHub, go to `Settings > Pages`.
+2. Under `Build and deployment`, set `Source` to `GitHub Actions`.
+3. Push to `main` (or run the `CD` workflow manually).
 
-Once the development server is running, you can access the application in your web browser at `http://localhost:3000`. From there, you can browse posts, view comments, and interact with the content.
+For this repository, the live URL is expected to be:
+
+- `https://ocastorena.github.io/reddit-lite/`
+
+If this project is forked, use:
+
+- `https://<your-github-username>.github.io/reddit-lite/`
