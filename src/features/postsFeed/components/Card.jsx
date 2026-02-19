@@ -147,15 +147,15 @@ const Card = ({ post, subreddit }) => {
 Card.propTypes = {
   post: PropTypes.shape({
     id: PropTypes.string.isRequired,
-    author: PropTypes.string,
-    created_utc: PropTypes.number,
-    downs: PropTypes.number,
-    num_comments: PropTypes.number,
+    author: PropTypes.string.isRequired,
+    created_utc: PropTypes.number.isRequired,
+    num_comments: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
     selftext: PropTypes.string,
+    url: PropTypes.string.isRequired,
+    ups: PropTypes.number.isRequired,
+    downs: PropTypes.number.isRequired,
     thumbnail: PropTypes.string,
-    title: PropTypes.string,
-    ups: PropTypes.number,
-    url: PropTypes.string,
     preview: PropTypes.shape({
       images: PropTypes.arrayOf(
         PropTypes.shape({
@@ -167,7 +167,7 @@ Card.propTypes = {
     }),
   }).isRequired,
   subreddit: PropTypes.shape({
-    display_name: PropTypes.string,
+    display_name: PropTypes.string.isRequired,
   }).isRequired,
 };
 
