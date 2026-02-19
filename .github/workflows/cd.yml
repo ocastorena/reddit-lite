@@ -60,6 +60,6 @@ jobs:
         with:
           path: ./dist
 
-      - name: CD: Deploy to GitHub Pages
+      - name: "CD: Deploy to GitHub Pages"
         id: deployment
         uses: actions/deploy-pages@v4
