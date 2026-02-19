@@ -1,14 +1,14 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { loadCurrentSubredditDetails } from "../subredditsThunks";
 import {
-  loadCurrentSubredditDetails,
   selectCurrentSubreddit,
   selectSubredditDetails,
-} from "../../features/subreddits/subredditsSlice";
-import { formatNumber } from "../../utils/formatNumber";
-import defaultSubredditUrl from "../../assets/letter-r.png";
+} from "../subredditsSelectors";
+import { formatNumber } from "../../../utils/formatNumber";
+import defaultSubredditUrl from "../../../assets/letter-r.png";
 
-const Sidebar = () => {
+const SubredditDetails = () => {
   const subreddit = useSelector(selectCurrentSubreddit);
   const subredditDetails = useSelector(selectSubredditDetails);
   const dispatch = useDispatch();
@@ -84,4 +84,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default SubredditDetails;

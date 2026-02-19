@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setFilteredPosts } from "../../features/postsFeed/postsFeedSlice";
 // Components
-import Sidebar from "../Sidebar/Sidebar";
-import Subreddits from "../../features/subreddits/Subreddits";
+import SubredditDetails from "../../features/subreddits/components/SubredditDetails";
+import SubredditsList from "../../features/subreddits/components/SubredditsList";
 // SVGs as components
 import MenuIcon from "../../assets/hamburger-menu.svg?react";
 // SVGs as images
@@ -58,8 +58,8 @@ const Navbar = () => {
       </button>
       {isMenuOpen && (
         <div className="sm:hidden bg-zinc-900 w-full p-4 mt-4 col-span-2 overflow-y-auto scrollbar-hide">
-          <Sidebar />
-          <Subreddits />
+          <SubredditDetails />
+          <SubredditsList />
         </div>
       )}
     </header>

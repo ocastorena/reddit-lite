@@ -1,12 +1,9 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Card from "../../components/Card/Card";
-import {
-  loadAllPosts,
-  selectAllPosts,
-  isLoadingPostsFeed,
-} from "./postsFeedSlice";
-import { selectCurrentSubreddit } from "../subreddits/subredditsSlice";
+import Card from "./components/Card";
+import { loadAllPosts } from "./postsFeedThunks";
+import { isLoadingPostsFeed, selectAllPosts } from "./postsFeedSelectors";
+import { selectCurrentSubreddit } from "../subreddits/subredditsSelectors";
 
 const PostsFeed = () => {
   const dispatch = useDispatch();
@@ -18,7 +15,7 @@ const PostsFeed = () => {
     if (Object.keys(currentSubreddit).length > 0) {
       dispatch(loadAllPosts(currentSubreddit.display_name));
     }
-  }, [currentSubreddit, dispatch]);
+  }, [dispatch, currentSubreddit]);
 
   if (isLoading || Object.keys(currentSubreddit).length === 0) {
     return (

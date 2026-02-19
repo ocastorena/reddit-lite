@@ -1,29 +1,8 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchPopularSubreddits, fetchSubredditDetails } from "../../utils/api";
-
-export const loadSubreddits = createAsyncThunk(
-  "popularSubreddits/loadSubreddits",
-  async (thunkAPI) => {
-    try {
-      const subreddits = await fetchPopularSubreddits();
-      return subreddits;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
-    }
-  }
-);
-
-export const loadCurrentSubredditDetails = createAsyncThunk(
-  "popularSubreddits/loadCurrentSubredditDetails",
-  async (subredditName, thunkAPI) => {
-    try {
-      const subredditDetails = await fetchSubredditDetails(subredditName);
-      return subredditDetails;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
-    }
-  }
-);
+import { createSlice } from "@reduxjs/toolkit";
+import {
+  loadCurrentSubredditDetails,
+  loadSubreddits,
+} from "./subredditsThunks.js";
 
 const subredditsSlice = createSlice({
   name: "popularSubreddits",
@@ -73,17 +52,5 @@ const subredditsSlice = createSlice({
 });
 
 export const { setCurrentSubreddit } = subredditsSlice.actions;
-
-export const selectAllSubreddits = (state) =>
-  state.popularSubreddits.subreddits;
-
-export const isLoadingSubreddits = (state) =>
-  state.popularSubreddits.isLoadingSubreddits;
-
-export const selectCurrentSubreddit = (state) =>
-  state.popularSubreddits.currentSubreddit;
-
-export const selectSubredditDetails = (state) =>
-  state.popularSubreddits.subredditDetails;
 
 export default subredditsSlice.reducer;

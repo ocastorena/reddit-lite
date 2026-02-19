@@ -2,6 +2,8 @@
 
 Reddit Lite is a small React + Redux app that lets users browse posts, open comments, and use a responsive Reddit-style UI.
 
+[![CI](https://github.com/ocastorena/reddit-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/ocastorena/reddit-lite/actions/workflows/ci.yml)
+
 ## Tech Stack
 
 - React
@@ -22,8 +24,20 @@ Open `http://localhost:5173`.
 
 - `npm run dev` - Start local dev server
 - `npm run lint` - Run ESLint
+- `npm run test` - Run reducer/selector unit tests
 - `npm run build` - Create production build
 - `npm run preview` - Preview production build locally
+
+## Testing
+
+```sh
+npm test
+```
+
+Current tests cover Redux reducers and selectors for:
+
+- `postsFeed`
+- `popularSubreddits`
 
 ## CI/CD
 
@@ -31,7 +45,7 @@ This repo includes two GitHub Actions workflows:
 
 - `/.github/workflows/ci.yml`
   - Runs on pull requests and pushes to `main`
-  - Executes `npm ci`, `npm run lint`, and `npm run build`
+  - Executes `npm ci`, `npm run lint`, `npm test`, and `npm run build`
 - `/.github/workflows/cd.yml`
   - Runs after `CI` succeeds on `main` (or manually via workflow dispatch)
   - Builds and deploys `dist/` to GitHub Pages

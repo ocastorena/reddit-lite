@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { setCurrentSubreddit } from "../subredditsSlice";
+import { loadSubreddits } from "../subredditsThunks";
 import {
-  loadSubreddits,
-  selectAllSubreddits,
   isLoadingSubreddits,
-  setCurrentSubreddit,
+  selectAllSubreddits,
   selectCurrentSubreddit,
-} from "./subredditsSlice";
-import defaultSubredditUrl from "../../assets/letter-r.png";
+} from "../subredditsSelectors";
+import defaultSubredditUrl from "../../../assets/letter-r.png";
 
-const Subreddits = () => {
+const SubredditsList = () => {
   const dispatch = useDispatch();
   const subreddits = useSelector(selectAllSubreddits);
   const isLoading = useSelector(isLoadingSubreddits);
@@ -19,7 +19,7 @@ const Subreddits = () => {
     if (Object.keys(currentSubreddit).length === 0) {
       dispatch(loadSubreddits());
     }
-  }, [currentSubreddit, dispatch]);
+  }, [dispatch, currentSubreddit]);
 
   return (
     <>
@@ -58,4 +58,4 @@ const Subreddits = () => {
   );
 };
 
-export default Subreddits;
+export default SubredditsList;

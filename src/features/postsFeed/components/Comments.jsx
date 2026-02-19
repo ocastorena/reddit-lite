@@ -1,11 +1,9 @@
 import { useEffect } from "react";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectComments,
-  loadComments,
-  isLoadingComments,
-} from "../../features/postsFeed/postsFeedSlice";
+import { loadComments } from "../postsFeedThunks";
+import { isLoadingComments, selectComments } from "../postsFeedSelectors";
+import { getRelativeTime } from "../../../utils/date/getRelativeTime";
 
 const Comments = ({ subredditName, postId }) => {
   const dispatch = useDispatch();
@@ -15,30 +13,6 @@ const Comments = ({ subredditName, postId }) => {
   useEffect(() => {
     dispatch(loadComments({ subredditName, postId }));
   }, [dispatch, subredditName, postId]);
-
-  const getRelativeTime = (timestamp) => {
-    const now = new Date();
-    const postDate = new Date(timestamp * 1000);
-    const secondsAgo = Math.floor((now - postDate) / 1000);
-
-    const intervals = {
-      year: 31536000,
-      month: 2592000,
-      week: 604800,
-      day: 86400,
-      hour: 3600,
-      minute: 60,
-      second: 1,
-    };
-
-    for (const [unit, secondsInUnit] of Object.entries(intervals)) {
-      const interval = Math.floor(secondsAgo / secondsInUnit);
-      if (interval >= 1) {
-        return `${interval} ${unit}${interval !== 1 ? "s" : ""} ago`;
-      }
-    }
-    return "just now";
-  };
 
   return (
     <section>

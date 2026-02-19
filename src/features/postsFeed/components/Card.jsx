@@ -1,10 +1,11 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import Comments from "./Comments";
-import CommentIcon from "../../assets/comments.svg?react";
-import UpVoteIcon from "../../assets/up.svg?react";
-import DownVoteIcon from "../../assets/down.svg?react";
-import { formatNumber } from "../../utils/formatNumber";
+import CommentIcon from "../../../assets/comments.svg?react";
+import UpVoteIcon from "../../../assets/up.svg?react";
+import DownVoteIcon from "../../../assets/down.svg?react";
+import { formatNumber } from "../../../utils/formatNumber";
+import { getRelativeTime } from "../../../utils/date/getRelativeTime";
 
 const Card = ({ post, subreddit }) => {
   const [showComments, setShowComments] = useState(false);
@@ -14,30 +15,6 @@ const Card = ({ post, subreddit }) => {
   const imageUrl = post.preview?.images[0]?.source?.url.replace(/&amp;/g, "&");
   const thumbnailUrl =
     post.thumbnail && post.thumbnail.startsWith("http") ? post.thumbnail : null;
-
-  const getRelativeTime = (timestamp) => {
-    const now = new Date();
-    const postDate = new Date(timestamp * 1000);
-    const secondsAgo = Math.floor((now - postDate) / 1000);
-
-    const intervals = {
-      year: 31536000,
-      month: 2592000,
-      week: 604800,
-      day: 86400,
-      hour: 3600,
-      minute: 60,
-      second: 1,
-    };
-
-    for (const [unit, secondsInUnit] of Object.entries(intervals)) {
-      const interval = Math.floor(secondsAgo / secondsInUnit);
-      if (interval >= 1) {
-        return `${interval} ${unit}${interval !== 1 ? "s" : ""} ago`;
-      }
-    }
-    return "just now";
-  };
 
   const postTime = getRelativeTime(post.created_utc);
 
