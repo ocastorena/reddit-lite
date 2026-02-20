@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import Comments from "./Comments";
 import CommentIcon from "../../../assets/comments.svg?react";
@@ -7,14 +7,64 @@ import DownVoteIcon from "../../../assets/down.svg?react";
 import { formatNumber } from "../../../utils/formatNumber";
 import { getRelativeTime } from "../../../utils/date/getRelativeTime";
 
+const decodeRedditUrl = (url) =>
+  typeof url === "string" ? url.replace(/&amp;/g, "&") : null;
+
+const isHttpUrl = (value) => {
+  if (typeof value !== "string" || value.length === 0) {
+    return false;
+  }
+
+  try {
+    const parsedUrl = new URL(value);
+    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
+const normalizePreviewImageUrl = (url) => {
+  if (!isHttpUrl(url)) {
+    return null;
+  }
+
+  const parsedUrl = new URL(url);
+  if (parsedUrl.hostname !== "preview.redd.it") {
+    return null;
+  }
+
+  // preview.redd.it frequently fails with CORS/CORP in browsers; i.redd.it is more stable.
+  return `https://i.redd.it${parsedUrl.pathname}`;
+};
+
+const getImageCandidates = (post) => {
+  const previewSourceUrl = decodeRedditUrl(post.preview?.images?.[0]?.source?.url);
+  const directImageUrl = decodeRedditUrl(post.url_overridden_by_dest);
+
+  return [
+    normalizePreviewImageUrl(previewSourceUrl),
+    directImageUrl,
+    previewSourceUrl,
+  ].filter((url, index, urls) => isHttpUrl(url) && urls.indexOf(url) === index);
+};
+
 const Card = ({ post, subreddit }) => {
   const [showComments, setShowComments] = useState(false);
   const [voteCount, setVoteCount] = useState(post.ups + post.downs);
   const [voteStatus, setVoteStatus] = useState(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  const imageUrl = post.preview?.images[0]?.source?.url.replace(/&amp;/g, "&");
+  const imageCandidates = useMemo(() => getImageCandidates(post), [post]);
+  const imageUrl = imageCandidates[activeImageIndex] || null;
+  const decodedThumbnailUrl = decodeRedditUrl(post.thumbnail);
   const thumbnailUrl =
-    post.thumbnail && post.thumbnail.startsWith("http") ? post.thumbnail : null;
+    decodedThumbnailUrl && decodedThumbnailUrl.startsWith("http")
+      ? decodedThumbnailUrl
+      : null;
+
+  useEffect(() => {
+    setActiveImageIndex(0);
+  }, [post.id]);
 
   const postTime = getRelativeTime(post.created_utc);
 
@@ -44,6 +94,10 @@ const Card = ({ post, subreddit }) => {
       );
       setVoteStatus("downvoted");
     }
+  };
+
+  const handleImageError = () => {
+    setActiveImageIndex((previousIndex) => previousIndex + 1);
   };
 
   return (
@@ -82,6 +136,12 @@ const Card = ({ post, subreddit }) => {
             src={thumbnailUrl}
             alt="Thumbnail"
             className="w-6 h-6 ml-auto rounded"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.style.display = "none";
+            }}
           />
         </section>
       )}
@@ -99,6 +159,9 @@ const Card = ({ post, subreddit }) => {
             src={imageUrl}
             alt="Post"
             className="w-full h-auto mt-5 rounded"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            onError={handleImageError}
           />
         </section>
       )}
@@ -156,6 +219,7 @@ Card.propTypes = {
     ups: PropTypes.number.isRequired,
     downs: PropTypes.number.isRequired,
     thumbnail: PropTypes.string,
+    url_overridden_by_dest: PropTypes.string,
     preview: PropTypes.shape({
       images: PropTypes.arrayOf(
         PropTypes.shape({
