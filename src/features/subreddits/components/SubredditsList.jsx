@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCurrentSubreddit } from "../subredditsSlice";
 import { loadSubreddits } from "../subredditsThunks";
 import {
+  hasSubredditsError,
   isLoadingSubreddits,
   selectAllSubreddits,
   selectCurrentSubreddit,
@@ -13,6 +14,7 @@ const SubredditsList = () => {
   const dispatch = useDispatch();
   const subreddits = useSelector(selectAllSubreddits);
   const isLoading = useSelector(isLoadingSubreddits);
+  const hasError = useSelector(hasSubredditsError);
   const currentSubreddit = useSelector(selectCurrentSubreddit);
 
   useEffect(() => {
@@ -30,6 +32,17 @@ const SubredditsList = () => {
         <div className="flex justify-center items-center">
           <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
         </div>
+      ) : hasError ? (
+        <div className="px-2">
+          <p className="text-sm text-zinc-400 mb-2">Failed to load subreddits.</p>
+          <button
+            type="button"
+            onClick={() => dispatch(loadSubreddits())}
+            className="rounded-full bg-zinc-800 px-3 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
+          >
+            Retry
+          </button>
+        </div>
       ) : (
         <ul className="overflow-y-auto scrollbar-hide w-full">
           {subreddits.map((subreddit) => (
@@ -45,6 +58,11 @@ const SubredditsList = () => {
                       ? subreddit.icon_img
                       : defaultSubredditUrl
                   }
+                  alt={`${subreddit.display_name_prefixed} icon`}
+                  onError={(event) => {
+                    event.currentTarget.onerror = null;
+                    event.currentTarget.src = defaultSubredditUrl;
+                  }}
                 />
                 <span className="p-2 break-words">
                   {subreddit.display_name_prefixed}

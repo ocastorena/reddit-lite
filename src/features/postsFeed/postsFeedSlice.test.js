@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import reducer, { setFilteredPosts } from "./postsFeedSlice.js";
 import { loadAllPosts, loadComments } from "./postsFeedThunks.js";
 import {
+  hasCommentsError,
+  hasPostsFeedError,
   isLoadingComments,
   isLoadingPostsFeed,
   selectAllPosts,
@@ -104,6 +106,8 @@ test("selectors read normalized postsFeed state", () => {
 
   assert.deepStrictEqual(selectAllPosts(state), [{ id: "p2" }]);
   assert.equal(isLoadingPostsFeed(state), true);
+  assert.equal(hasPostsFeedError(state), false);
   assert.deepStrictEqual(selectComments(state), [{ id: "c1" }]);
   assert.equal(isLoadingComments(state), false);
+  assert.equal(hasCommentsError(state), false);
 });

@@ -6,6 +6,8 @@ import {
   loadSubreddits,
 } from "./subredditsThunks.js";
 import {
+  hasSubredditsError,
+  isLoadingSubredditDetails,
   isLoadingSubreddits,
   selectAllSubreddits,
   selectCurrentSubreddit,
@@ -92,6 +94,7 @@ test("selectors read popularSubreddits state", () => {
     { id: "s1", display_name: "reactjs" },
   ]);
   assert.equal(isLoadingSubreddits(state), true);
+  assert.equal(hasSubredditsError(state), false);
   assert.deepStrictEqual(selectCurrentSubreddit(state), {
     id: "s2",
     display_name: "javascript",
@@ -100,4 +103,5 @@ test("selectors read popularSubreddits state", () => {
     display_name: "javascript",
     subscribers: 42,
   });
+  assert.equal(isLoadingSubredditDetails(state), false);
 });
