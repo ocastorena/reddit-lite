@@ -7,6 +7,7 @@ import {
   isLoadingSubreddits,
   selectAllSubreddits,
   selectCurrentSubreddit,
+  selectSubredditsErrorMessage,
 } from "../subredditsSelectors";
 import defaultSubredditUrl from "../../../assets/letter-r.png";
 
@@ -15,6 +16,7 @@ const SubredditsList = () => {
   const subreddits = useSelector(selectAllSubreddits);
   const isLoading = useSelector(isLoadingSubreddits);
   const hasError = useSelector(hasSubredditsError);
+  const errorMessage = useSelector(selectSubredditsErrorMessage);
   const currentSubreddit = useSelector(selectCurrentSubreddit);
 
   useEffect(() => {
@@ -34,7 +36,9 @@ const SubredditsList = () => {
         </div>
       ) : hasError ? (
         <div className="px-2">
-          <p className="text-sm text-zinc-400 mb-2">Failed to load subreddits.</p>
+          <p className="text-sm text-zinc-400 mb-2">
+            {errorMessage || "Failed to load subreddits."}
+          </p>
           <button
             type="button"
             onClick={() => dispatch(loadSubreddits())}

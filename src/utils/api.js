@@ -8,6 +8,15 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const isRetryableError = (error) =>
   error?.name === "AbortError" || error instanceof TypeError;
 
+const isCorsOrNetworkError = (error) => {
+  if (error instanceof TypeError) {
+    return true;
+  }
+
+  const message = error?.message ?? "";
+  return /CORS|Failed to fetch|NetworkError|blocked the request/i.test(message);
+};
+
 const normalizeSubreddit = (subreddit) => {
   const trimmedSubreddit = subreddit?.trim();
   if (!trimmedSubreddit) {
@@ -59,15 +68,29 @@ const fetchJsonWithRetry = async (path, requestDescription) => {
       return await response.json();
     } catch (error) {
       latestError = error;
-      if (isRetryableError(error) && attempt < DEFAULT_MAX_RETRIES) {
-        await sleep(BASE_RETRY_DELAY_MS * (attempt + 1));
-        continue;
+      if (isRetryableError(error)) {
+        if (attempt < DEFAULT_MAX_RETRIES) {
+          await sleep(BASE_RETRY_DELAY_MS * (attempt + 1));
+          continue;
+        }
+
+        break;
       }
 
       throw error;
     } finally {
       clearTimeout(timeoutId);
     }
+  }
+
+  if (latestError?.name === "AbortError") {
+    throw new Error(`Request timed out while loading ${requestDescription}`);
+  }
+
+  if (isCorsOrNetworkError(latestError)) {
+    throw new Error(
+      `Reddit blocked the request while loading ${requestDescription}. This is usually temporary (CORS/rate limit). Please try again.`
+    );
   }
 
   throw latestError;
@@ -81,6 +104,27 @@ const mapListingChildren = (json, requestDescription) => {
   }
 
   return children.map((child) => child?.data).filter(Boolean);
+};
+
+const mapSubredditsFromPopularPosts = (posts) => {
+  const uniqueSubreddits = new Map();
+
+  for (const post of posts) {
+    const displayName = post?.subreddit;
+    if (!displayName || uniqueSubreddits.has(displayName)) {
+      continue;
+    }
+
+    uniqueSubreddits.set(displayName, {
+      id: post?.sr_detail?.id ?? `fallback-${displayName.toLowerCase()}`,
+      display_name: displayName,
+      display_name_prefixed: post?.subreddit_name_prefixed ?? `r/${displayName}`,
+      icon_img: post?.sr_detail?.icon_img ?? "",
+      url: post?.sr_detail?.url ?? `/r/${displayName}/`,
+    });
+  }
+
+  return [...uniqueSubreddits.values()];
 };
 
 export const fetchPosts = async (subreddit) => {
@@ -105,6 +149,26 @@ export const fetchPopularSubreddits = async () => {
     );
     return mapListingChildren(json, "popular subreddits");
   } catch (error) {
+    if (isCorsOrNetworkError(error)) {
+      try {
+        const fallbackJson = await fetchJsonWithRetry(
+          "/r/popular.json",
+          "popular posts"
+        );
+        const popularPosts = mapListingChildren(fallbackJson, "popular posts");
+        const fallbackSubreddits = mapSubredditsFromPopularPosts(popularPosts);
+
+        if (fallbackSubreddits.length > 0) {
+          console.warn(
+            "Falling back to subreddits derived from /r/popular due to Reddit CORS restrictions."
+          );
+          return fallbackSubreddits;
+        }
+      } catch (fallbackError) {
+        console.error("Fallback popular subreddit request failed:", fallbackError);
+      }
+    }
+
     console.error("Failed to fetch popular subreddits:", error);
     throw error;
   }

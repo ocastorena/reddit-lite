@@ -6,6 +6,7 @@ import {
   isLoadingSubredditDetails,
   selectCurrentSubreddit,
   selectSubredditDetails,
+  selectSubredditsErrorMessage,
 } from "../subredditsSelectors";
 import { formatNumber } from "../../../utils/formatNumber";
 import defaultSubredditUrl from "../../../assets/letter-r.png";
@@ -15,6 +16,7 @@ const SubredditDetails = () => {
   const subredditDetails = useSelector(selectSubredditDetails);
   const isLoadingDetails = useSelector(isLoadingSubredditDetails);
   const hasError = useSelector(hasSubredditsError);
+  const errorMessage = useSelector(selectSubredditsErrorMessage);
   const dispatch = useDispatch();
   const subredditName = subreddit.display_name;
   const subredditUrl = subreddit.url || "/";
@@ -49,7 +51,7 @@ const SubredditDetails = () => {
   }
 
   if (hasError && !subredditDetails.display_name_prefixed) {
-    return <p className="text-sm text-zinc-400">Failed to load subreddit details.</p>;
+    return <p className="text-sm text-zinc-400">{errorMessage || "Failed to load subreddit details."}</p>;
   }
 
   return (

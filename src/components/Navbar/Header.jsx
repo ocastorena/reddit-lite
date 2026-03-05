@@ -15,12 +15,13 @@ const Navbar = () => {
   const dispatch = useDispatch();
 
   const handleInputChange = (e) => {
-    setSearchTerm(e.target.value);
+    const nextSearchTerm = e.target.value;
+    setSearchTerm(nextSearchTerm);
+    dispatch(setFilteredPosts(nextSearchTerm));
   };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    dispatch(setFilteredPosts(searchTerm));
   };
 
   const toggleMenu = () => {
@@ -46,8 +47,9 @@ const Navbar = () => {
         <input
           type="text"
           id="search-input"
-          placeholder="Search Subreddit"
+          placeholder="Search posts"
           aria-label="Search"
+          value={searchTerm}
           onChange={handleInputChange}
           className="w-full h-12 p-2 rounded-xl bg-zinc-900 text-zinc-100 placeholder-zinc-300 border-2 border-zinc-800"
         />

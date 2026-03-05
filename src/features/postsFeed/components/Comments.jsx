@@ -3,17 +3,25 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { loadComments } from "../postsFeedThunks";
 import {
-  hasCommentsError,
-  isLoadingComments,
-  selectComments,
+  hasCommentsErrorByPostId,
+  isLoadingCommentsByPostId,
+  selectCommentsByPostId,
+  selectCommentsErrorMessageByPostId,
 } from "../postsFeedSelectors";
 import { getRelativeTime } from "../../../utils/date/getRelativeTime";
 
 const Comments = ({ subredditName, postId }) => {
   const dispatch = useDispatch();
-  const comments = useSelector(selectComments);
-  const isLoading = useSelector(isLoadingComments);
-  const hasError = useSelector(hasCommentsError);
+  const comments = useSelector((state) => selectCommentsByPostId(state, postId));
+  const isLoading = useSelector((state) =>
+    isLoadingCommentsByPostId(state, postId)
+  );
+  const hasError = useSelector((state) =>
+    hasCommentsErrorByPostId(state, postId)
+  );
+  const errorMessage = useSelector((state) =>
+    selectCommentsErrorMessageByPostId(state, postId)
+  );
 
   useEffect(() => {
     dispatch(loadComments({ subredditName, postId }));
@@ -35,7 +43,9 @@ const Comments = ({ subredditName, postId }) => {
         </div>
       ) : hasError ? (
         <div className="p-4">
-          <p className="text-sm text-zinc-400 mb-2">Failed to load comments.</p>
+          <p className="text-sm text-zinc-400 mb-2">
+            {errorMessage || "Failed to load comments."}
+          </p>
           <button
             type="button"
             onClick={() => dispatch(loadComments({ subredditName, postId }))}
