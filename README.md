@@ -14,7 +14,6 @@ A lightweight Reddit client built with React. Browse popular subreddits, read po
 - Search/filter posts by keyword
 - Upvote and downvote posts
 - Responsive layout with a mobile-friendly dropdown menu
-- NSFW content filtering
 - API response caching to reduce Reddit rate limits
 
 ## Tech Stack
