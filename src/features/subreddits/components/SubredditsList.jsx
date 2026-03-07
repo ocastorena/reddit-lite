@@ -47,6 +47,17 @@ const SubredditsList = ({ onSubredditSelect }) => {
             Retry
           </button>
         </div>
+      ) : hasError ? (
+        <div className="px-2">
+          <p className="text-sm text-zinc-400 mb-2">Failed to load subreddits.</p>
+          <button
+            type="button"
+            onClick={() => dispatch(loadSubreddits())}
+            className="rounded-full bg-zinc-800 px-3 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
+          >
+            Retry
+          </button>
+        </div>
       ) : (
         <ul className="overflow-y-auto scrollbar-hide w-full space-y-1">
           {subreddits.map((subreddit) => (
