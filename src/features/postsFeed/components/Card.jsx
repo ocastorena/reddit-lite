@@ -7,6 +7,28 @@ import DownVoteIcon from "../../../assets/down.svg?react";
 import { formatNumber } from "../../../utils/formatNumber";
 import { getRelativeTime } from "../../../utils/date/getRelativeTime";
 
+const renderTextWithLinks = (text) => {
+  if (!text) return null;
+  const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
+  return parts.map((part, i) => {
+    const match = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (match) {
+      return (
+        <a
+          key={i}
+          href={match[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-400 hover:underline"
+        >
+          {match[1]}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 const decodeRedditUrl = (url) =>
   typeof url === "string" ? url.replace(/&amp;/g, "&") : null;
 
@@ -101,41 +123,42 @@ const Card = ({ post, subreddit }) => {
   };
 
   return (
-    <article className="flex flex-col rounded-lg shadow-md text-light bg-zinc-900 w-full mb-4 px-4 py-2">
-      <header className="flex items-center space-x-2">
-        <h6 className="text-xs">{"u/" + post.author}</h6>
-        <span className="text-zinc-500">•</span>
-        <p className="text-xs leading-none text-zinc-500">{`Posted ${postTime}`}</p>
+    <article className="flex flex-col rounded-lg border border-zinc-800 text-zinc-200 bg-zinc-900 w-full mb-3 px-4 py-3">
+      <header className="flex items-center space-x-1.5 text-xs">
+        <span className="text-zinc-400 font-medium">{"r/" + subreddit.display_name}</span>
+        <span className="text-zinc-600">·</span>
+        <span className="text-zinc-500">{"u/" + post.author}</span>
+        <span className="text-zinc-600">·</span>
+        <span className="text-zinc-500">{postTime}</span>
       </header>
-      {!imageUrl && !thumbnailUrl && (
-        <div>
-          <h2 className="mt-2 mb-2">
-            <a
-              href={post.url}
-              className="text-zinc-300 text-base font-semibold break-words hover:text-white"
-            >
-              {post.title}
-            </a>
-          </h2>
-          <p className="mt-2 text-gray-400 text-sm break-words">
-            {post.selftext}
-          </p>
+      <h2 className="mt-1.5 mb-1.5">
+        <a
+          href={post.url}
+          className="text-zinc-200 text-base font-semibold break-words hover:text-violet-400 transition-colors"
+        >
+          {post.title}
+        </a>
+      </h2>
+      {imageUrl ? (
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src={imageUrl}
+            alt={post.title}
+            className="w-full aspect-[4/3] object-cover"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            onError={handleImageError}
+          />
         </div>
-      )}
-      {!imageUrl && thumbnailUrl && (
-        <section className="flex mt-2 max-w-full items-center">
-          <h2 className="my-2 mr-2">
-            <a
-              href={post.url}
-              className="text-zinc-300 text-base font-semibold break-words hover:text-white"
-            >
-              {post.title}
-            </a>
-          </h2>
+      ) : thumbnailUrl ? (
+        <div className="flex items-start gap-3">
+          <p className="text-sm text-zinc-400 break-words line-clamp-3 flex-1">
+            {renderTextWithLinks(post.selftext)}
+          </p>
           <img
             src={thumbnailUrl}
-            alt="Thumbnail"
-            className="w-6 h-6 ml-auto rounded"
+            alt={post.title}
+            className="w-16 h-16 rounded-lg object-cover shrink-0 bg-zinc-800"
             loading="lazy"
             referrerPolicy="no-referrer"
             onError={(event) => {
@@ -143,34 +166,18 @@ const Card = ({ post, subreddit }) => {
               event.currentTarget.style.display = "none";
             }}
           />
-        </section>
-      )}
-      {imageUrl && (
-        <section className="max-w-full overflow-hidden">
-          <h2 className="mt-2 mb-2">
-            <a
-              href={post.url}
-              className="text-zinc-300 md:text-lg text-base font-semibold break-words hover:text-white"
-            >
-              {post.title}
-            </a>
-          </h2>
-          <img
-            src={imageUrl}
-            alt="Post"
-            className="w-full h-auto mt-5 rounded"
-            loading="lazy"
-            referrerPolicy="no-referrer"
-            onError={handleImageError}
-          />
-        </section>
-      )}
-      <div className="border-t-2 border-zinc-700 mt-5"></div>
-      <footer className="flex items-center space-x-4 mt-5 text-gray-500">
-        <div className="flex items-center shadow-md no-underline rounded-full bg-very-dark">
+        </div>
+      ) : post.selftext ? (
+        <p className="text-sm text-zinc-400 break-words line-clamp-4">
+          {renderTextWithLinks(post.selftext)}
+        </p>
+      ) : null}
+      <footer className="flex items-center space-x-3 mt-2.5 text-zinc-500">
+        <div className="flex items-center rounded-full bg-zinc-800">
           <button
             onClick={handleUpvote}
-            className={`flex items-center space-x-2 py-1 px-2 shadow-md no-underline rounded-full bg-very-dark text-light border-blue btn-primary hover:bg-gray-700 focus:outline-none active:shadow-none ${voteStatus === "upvoted" ? "text-green-500" : ""}`}
+            aria-label="Upvote"
+            className={`flex items-center py-1.5 px-2 rounded-full hover:bg-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-500 transition-colors ${voteStatus === "upvoted" ? "text-green-500" : "text-zinc-200"}`}
           >
             <UpVoteIcon
               className={`w-5 h-5 fill-current ${voteStatus === "upvoted" ? "text-green-500" : ""}`}
@@ -183,7 +190,8 @@ const Card = ({ post, subreddit }) => {
           </span>
           <button
             onClick={handleDownvote}
-            className={`flex items-center space-x-2 py-1 px-2 shadow-md no-underline rounded-full bg-very-dark text-light border-blue btn-primary hover:bg-gray-700 focus:outline-none active:shadow-none ${voteStatus === "downvoted" ? "text-red-500" : ""}`}
+            aria-label="Downvote"
+            className={`flex items-center py-1.5 px-2 rounded-full hover:bg-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-500 transition-colors ${voteStatus === "downvoted" ? "text-red-500" : "text-zinc-200"}`}
           >
             <DownVoteIcon
               className={`w-5 h-5 fill-current ${voteStatus === "downvoted" ? "text-red-500" : ""}`}
@@ -192,10 +200,11 @@ const Card = ({ post, subreddit }) => {
         </div>
         <button
           onClick={handleToggleComments}
-          className="flex items-center space-x-2 px-2 shadow-md no-underline rounded-full bg-very-dark text-light border-blue btn-primary hover:bg-gray-700 focus:outline-none active:shadow-none"
+          aria-label="Toggle comments"
+          className={`flex items-center space-x-1.5 py-1.5 px-3 rounded-full hover:bg-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-500 transition-colors ${showComments ? "bg-violet-500/15 text-violet-400" : "bg-zinc-800 text-zinc-200"}`}
         >
-          <CommentIcon className="w-7 h-7 fill-light" />
-          <span className="text-sm px-1">
+          <CommentIcon className={`w-5 h-5 ${showComments ? "fill-violet-400" : "fill-zinc-200"}`} />
+          <span className="text-sm">
             {formatNumber(post.num_comments)}
           </span>
         </button>

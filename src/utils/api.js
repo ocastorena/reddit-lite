@@ -1,7 +1,25 @@
-const BASE_URL = "https://www.reddit.com";
+const IS_DEV = import.meta.env.DEV;
+const BASE_URL = IS_DEV ? "/reddit-api" : "https://www.reddit.com";
 const DEFAULT_TIMEOUT_MS = 10000;
 const DEFAULT_MAX_RETRIES = 2;
 const BASE_RETRY_DELAY_MS = 400;
+const DEFAULT_CACHE_TTL_MS = 5 * 60 * 1000;
+
+const responseCache = new Map();
+
+const getCached = (key) => {
+  const entry = responseCache.get(key);
+  if (!entry) return undefined;
+  if (Date.now() > entry.expiry) {
+    responseCache.delete(key);
+    return undefined;
+  }
+  return entry.data;
+};
+
+const setCache = (key, data, ttl = DEFAULT_CACHE_TTL_MS) => {
+  responseCache.set(key, { data, expiry: Date.now() + ttl });
+};
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -36,12 +54,19 @@ const normalizePostId = (postId) => {
 };
 
 const createUrl = (path) => {
+  if (IS_DEV) {
+    const separator = path.includes("?") ? "&" : "?";
+    return `${BASE_URL}${path}${separator}raw_json=1`;
+  }
   const url = new URL(path, BASE_URL);
   url.searchParams.set("raw_json", "1");
   return url.toString();
 };
 
-const fetchJsonWithRetry = async (path, requestDescription) => {
+const fetchJsonWithRetry = async (path, requestDescription, { cacheTtl = DEFAULT_CACHE_TTL_MS } = {}) => {
+  const cached = getCached(path);
+  if (cached) return cached;
+
   let latestError = null;
 
   for (let attempt = 0; attempt <= DEFAULT_MAX_RETRIES; attempt += 1) {
@@ -54,18 +79,25 @@ const fetchJsonWithRetry = async (path, requestDescription) => {
       });
 
       if (!response.ok) {
-        const retryableStatus = response.status === 429 || response.status >= 500;
-        if (retryableStatus && attempt < DEFAULT_MAX_RETRIES) {
+        if (response.status === 429 && attempt < DEFAULT_MAX_RETRIES) {
+          await sleep(2000 * (attempt + 1));
+          continue;
+        }
+        if (response.status >= 500 && attempt < DEFAULT_MAX_RETRIES) {
           await sleep(BASE_RETRY_DELAY_MS * (attempt + 1));
           continue;
         }
 
-        throw new Error(
+        const err = new Error(
           `Reddit API request failed (${response.status}) while loading ${requestDescription}`
         );
+        err.status = response.status;
+        throw err;
       }
 
-      return await response.json();
+      const data = await response.json();
+      setCache(path, data, cacheTtl);
+      return data;
     } catch (error) {
       latestError = error;
       if (isRetryableError(error)) {
@@ -132,9 +164,11 @@ export const fetchPosts = async (subreddit) => {
     const normalizedSubreddit = normalizeSubreddit(subreddit);
     const json = await fetchJsonWithRetry(
       `/r/${normalizedSubreddit}.json`,
-      `posts from r/${subreddit}`
+      `posts from r/${subreddit}`,
+      { cacheTtl: 2 * 60 * 1000 }
     );
-    return mapListingChildren(json, `posts from r/${subreddit}`);
+    const posts = mapListingChildren(json, `posts from r/${subreddit}`);
+    return posts.filter((post) => !post.over_18);
   } catch (error) {
     console.error("Failed to fetch posts:", error);
     throw error;
@@ -147,9 +181,11 @@ export const fetchPopularSubreddits = async () => {
       "/subreddits/popular.json",
       "popular subreddits"
     );
-    return mapListingChildren(json, "popular subreddits");
+    const subreddits = mapListingChildren(json, "popular subreddits");
+    return subreddits.filter((sub) => !sub.over18);
   } catch (error) {
-    if (isCorsOrNetworkError(error)) {
+    const isRateLimited = error?.status === 429;
+    if (isCorsOrNetworkError(error) || isRateLimited) {
       try {
         const fallbackJson = await fetchJsonWithRetry(
           "/r/popular.json",
@@ -160,7 +196,7 @@ export const fetchPopularSubreddits = async () => {
 
         if (fallbackSubreddits.length > 0) {
           console.warn(
-            "Falling back to subreddits derived from /r/popular due to Reddit CORS restrictions."
+            "Falling back to subreddits derived from /r/popular due to Reddit rate limiting."
           );
           return fallbackSubreddits;
         }
@@ -180,7 +216,8 @@ export const fetchComments = async (subreddit, postId) => {
     const normalizedPostId = normalizePostId(postId);
     const json = await fetchJsonWithRetry(
       `/r/${normalizedSubreddit}/comments/${normalizedPostId}.json`,
-      `comments for post ${postId}`
+      `comments for post ${postId}`,
+      { cacheTtl: 2 * 60 * 1000 }
     );
 
     const children = json?.[1]?.data?.children;
@@ -200,7 +237,8 @@ export const fetchSubredditDetails = async (subreddit) => {
     const normalizedSubreddit = normalizeSubreddit(subreddit);
     const json = await fetchJsonWithRetry(
       `/r/${normalizedSubreddit}/about.json`,
-      `details for r/${subreddit}`
+      `details for r/${subreddit}`,
+      { cacheTtl: 10 * 60 * 1000 }
     );
 
     if (!json?.data || typeof json.data !== "object") {

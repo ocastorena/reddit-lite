@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Card from "./components/Card";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import { loadAllPosts } from "./postsFeedThunks";
 import {
   hasPostsFeedError,
@@ -26,7 +27,7 @@ const PostsFeed = () => {
   if (isLoading || !currentSubredditName) {
     return (
       <div className="flex justify-center items-center h-full">
-        <div className="animate-spin h-12 w-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+        <LoadingSpinner />
       </div>
     );
   }
@@ -49,17 +50,17 @@ const PostsFeed = () => {
   if (posts.length === 0) {
     return (
       <div className="flex justify-center items-center h-full">
-        <p className="text-gray-500">No posts matching search term</p>
+        <p className="text-zinc-500">No posts matching search term</p>
       </div>
     );
   }
 
   return (
-    <>
+    <div className="w-full">
       {posts.map((post) => (
         <Card key={post.id} post={post} subreddit={currentSubreddit} />
       ))}
-    </>
+    </div>
   );
 };
 
