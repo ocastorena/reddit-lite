@@ -6,7 +6,7 @@ import {
 
 export const loadSubreddits = createAsyncThunk(
   "popularSubreddits/loadSubreddits",
-  async (thunkAPI) => {
+  async (_, thunkAPI) => {
     try {
       const subreddits = await fetchPopularSubreddits();
       return subreddits;

@@ -1,69 +1,80 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { setFilteredPosts } from "../../features/postsFeed/postsFeedSlice";
+import { useState } from "react"
+import { useDispatch } from "react-redux"
+import { setFilteredPosts } from "../../features/postsFeed/postsFeedSlice"
 // Components
-import SubredditDetails from "../../features/subreddits/components/SubredditDetails";
-import SubredditsList from "../../features/subreddits/components/SubredditsList";
+import SubredditDetails from "../../features/subreddits/components/SubredditDetails"
+import SubredditsList from "../../features/subreddits/components/SubredditsList"
 // SVGs as components
-import MenuIcon from "../../assets/hamburger-menu.svg?react";
+import MenuIcon from "../../assets/hamburger-menu.svg?react"
 // SVGs as images
-import RedditIcon from "../../assets/reddit.svg";
+import RedditIcon from "../../assets/reddit.svg"
 
 const Navbar = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const dispatch = useDispatch();
+  const [searchTerm, setSearchTerm] = useState("")
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const dispatch = useDispatch()
 
   const handleInputChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
+    const nextSearchTerm = e.target.value
+    setSearchTerm(nextSearchTerm)
+    dispatch(setFilteredPosts(nextSearchTerm))
+  }
 
   const handleFormSubmit = (e) => {
-    e.preventDefault();
-    dispatch(setFilteredPosts(searchTerm));
-  };
+    e.preventDefault()
+  }
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+    setIsMenuOpen(!isMenuOpen)
+  }
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full py-4 px-4 bg-zinc-950 border-b-2 border-zinc-800 grid grid-cols-2 sm:grid-cols-3 sm:items-center sm:py-2 overflow-y-auto transition-all duration-300 ${
-        isMenuOpen ? "h-screen" : ""
-      }`}
-    >
-      <a className="flex items-center w-fit px-2" href="/">
-        <img src={RedditIcon} alt="Site Logo" className="h-8 w-8 mr-2" />
-        <span className="text-zinc-100 font-bold">Reddit</span>
-        <span className="text-orange-400">Lite</span>
-      </a>
+      className="fixed top-0 left-0 z-50 w-full bg-zinc-950 border-b-2 border-zinc-800 flex flex-col">
+      <nav className="grid grid-cols-[1fr_2fr_1fr] items-center gap-2 sm:gap-4 py-4 px-4 sm:py-2">
+        <a className="flex items-center w-fit px-2" href="/">
+          <img src={RedditIcon} alt="Site Logo" className="h-8 w-8 mr-2" />
+          <span className="text-zinc-100 font-bold hidden sm:inline">Reddit</span>
+          <span className="text-violet-400 hidden sm:inline">Lite</span>
+        </a>
 
-      <form onSubmit={handleFormSubmit} className="hidden sm:block">
-        <label htmlFor="search-input" className="sr-only">
-          Search
-        </label>
-        <input
-          type="text"
-          id="search-input"
-          placeholder="Search Subreddit"
-          aria-label="Search"
-          onChange={handleInputChange}
-          className="w-full h-12 p-2 rounded-xl bg-zinc-900 text-zinc-100 placeholder-zinc-300 border-2 border-zinc-800"
-        />
-      </form>
+        <form onSubmit={handleFormSubmit} className="flex justify-center">
+          <label htmlFor="search-input" className="sr-only">
+            Search
+          </label>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search posts"
+            aria-label="Search"
+            value={searchTerm}
+            onChange={handleInputChange}
+            className="w-full max-w-lg h-10 sm:h-12 p-2 rounded-xl bg-zinc-900 text-zinc-100 placeholder-zinc-300 border-2 border-zinc-800"
+          />
+        </form>
 
-      <button className="ml-auto sm:hidden" onClick={toggleMenu}>
-        <MenuIcon className="w-10 h-10 fill-zinc-300" />
-      </button>
+        <div className="flex justify-end">
+          <button
+            className="sm:hidden"
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}>
+            <MenuIcon className="w-10 h-10 fill-zinc-300" />
+          </button>
+        </div>
+      </nav>
       {isMenuOpen && (
-        <div className="sm:hidden bg-zinc-900 w-full p-4 mt-4 col-span-2 overflow-y-auto scrollbar-hide">
-          <SubredditDetails />
-          <SubredditsList />
+        <div className="sm:hidden p-4 overflow-y-auto overscroll-contain scrollbar-hide max-h-[calc(100vh-4rem)] space-y-4">
+          <div className="bg-zinc-900 rounded-lg p-4">
+            <SubredditDetails />
+          </div>
+          <div className="bg-zinc-900 rounded-lg p-4">
+            <SubredditsList onSubredditSelect={() => setIsMenuOpen(false)} />
+          </div>
         </div>
       )}
     </header>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

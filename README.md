@@ -1,66 +1,43 @@
 # Reddit Lite
 
-Reddit Lite is a small React + Redux app that lets users browse posts, open comments, and use a responsive Reddit-style UI.
-
 [![CI](https://github.com/ocastorena/reddit-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/ocastorena/reddit-lite/actions/workflows/ci.yml)
+
+A lightweight Reddit client built with React. Browse popular subreddits, read posts, and view comments — all in a clean, dark-themed interface.
+
+**[Live Demo](https://ocastorena.github.io/reddit-lite/)**
+
+## Features
+
+- Browse popular subreddits and their posts
+- View subreddit details including banner, stats, and content types
+- Read and expand comments inline with a scrollable panel
+- Search/filter posts by keyword
+- Upvote and downvote posts
+- Responsive layout with a mobile-friendly dropdown menu
+- API response caching to reduce Reddit rate limits
 
 ## Tech Stack
 
-- React
-- Redux Toolkit
-- Tailwind CSS
-- Vite
+- **React** — UI components
+- **Redux Toolkit** — State management
+- **Tailwind CSS** — Styling
+- **Vite** — Build tool and dev server
 
-## Local Development
+## Getting Started
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open `http://localhost:5173`.
+Open [http://localhost:5173](http://localhost:5173).
 
 ## Scripts
 
-- `npm run dev` - Start local dev server
-- `npm run lint` - Run ESLint
-- `npm run test` - Run reducer/selector unit tests
-- `npm run build` - Create production build
-- `npm run preview` - Preview production build locally
-
-## Testing
-
-```sh
-npm test
-```
-
-Current tests cover Redux reducers and selectors for:
-
-- `postsFeed`
-- `popularSubreddits`
-
-## CI/CD
-
-This repo includes two GitHub Actions workflows:
-
-- `/.github/workflows/ci.yml`
-  - Runs on pull requests and pushes to `main`
-  - Executes `npm ci`, `npm run lint`, `npm test`, and `npm run build`
-- `/.github/workflows/cd.yml`
-  - Runs after `CI` succeeds on `main` (or manually via workflow dispatch)
-  - Builds and deploys `dist/` to GitHub Pages
-  - Automatically sets the correct Vite `base` path for project pages
-
-## Live Demo (GitHub Pages)
-
-1. In GitHub, go to `Settings > Pages`.
-2. Under `Build and deployment`, set `Source` to `GitHub Actions`.
-3. Push to `main` (or run the `CD` workflow manually).
-
-For this repository, the live URL is expected to be:
-
-- `https://ocastorena.github.io/reddit-lite/`
-
-If this project is forked, use:
-
-- `https://<your-github-username>.github.io/reddit-lite/`
+| Command           | Description              |
+| ----------------- | ------------------------ |
+| `npm run dev`     | Start dev server         |
+| `npm run build`   | Production build         |
+| `npm run preview` | Preview production build |
+| `npm run lint`    | Run ESLint               |
+| `npm test`        | Run unit tests           |

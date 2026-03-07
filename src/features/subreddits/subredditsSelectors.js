@@ -4,6 +4,8 @@ export const selectAllSubreddits = (state) =>
 export const isLoadingSubreddits = (state) =>
   state.popularSubreddits.isLoadingSubreddits;
 export const hasSubredditsError = (state) => state.popularSubreddits.hasError;
+export const selectSubredditsErrorMessage = (state) =>
+  state.popularSubreddits.errorMessage;
 
 export const selectCurrentSubreddit = (state) =>
   state.popularSubreddits.currentSubreddit;
