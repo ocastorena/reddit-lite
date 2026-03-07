@@ -1,11 +1,9 @@
-import reducer, { setCurrentSubreddit } from "./subredditsSlice.js"
+import reducer from "./subredditsSlice.js"
 import {
   loadCurrentSubredditDetails,
   loadSubreddits,
 } from "./subredditsThunks.js"
 import {
-  hasSubredditsError,
-  isLoadingSubredditDetails,
   isLoadingSubreddits,
   selectAllSubreddits,
   selectCurrentSubreddit,
@@ -28,28 +26,6 @@ describe("subredditsSlice", () => {
       subredditDetailsRequestId: null,
     })
   })
-
-  // it("setCurrentSubreddit updates selected subreddit and clears stale details", () => {
-  //   const subreddit = { id: "1", display_name: "reactjs" }
-  //   const initialState = {
-  //     currentSubreddit: { id: "0", display_name: "javascript" },
-  //     subreddits: [],
-  //     isLoadingSubreddits: false,
-  //     subredditsRequestId: null,
-  //     hasError: false,
-  //     errorMessage: null,
-  //     subredditDetails: { display_name: "javascript", subscribers: 100 },
-  //     isLoadingSubredditDetails: true,
-  //     subredditDetailsRequestId: "req-in-flight",
-  //   }
-
-  //   const state = reducer(initialState, setCurrentSubreddit(subreddit))
-
-  //   expect(state.currentSubreddit).toEqual(subreddit)
-  //   expect(state.subredditDetails).toEqual({})
-  //   expect(state.isLoadingSubredditDetails).toBe(false)
-  //   expect(state.subredditDetailsRequestId).toBe(null)
-  // })
 
   describe("loadSubreddits lifecycle", () => {
     it("updates subreddit list state and ignores stale responses", () => {

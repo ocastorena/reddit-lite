@@ -1,13 +1,9 @@
 import reducer, { setFilteredPosts } from "./postsFeedSlice.js"
 import { loadAllPosts, loadComments } from "./postsFeedThunks.js"
 import {
-  hasCommentsErrorByPostId,
-  hasPostsFeedError,
-  isLoadingCommentsByPostId,
   isLoadingPostsFeed,
   selectAllPosts,
   selectCommentsByPostId,
-  selectCommentsErrorMessageByPostId,
 } from "./postsFeedSelectors.js"
 
 describe("postsFeedSlice", () => {
