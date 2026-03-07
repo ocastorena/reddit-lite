@@ -1,10 +1,10 @@
 # Reddit Lite
 
+[![CI](https://github.com/ocastorena/reddit-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/ocastorena/reddit-lite/actions/workflows/ci.yml)
+
 A lightweight Reddit client built with React. Browse popular subreddits, read posts, and view comments — all in a clean, dark-themed interface.
 
 **[Live Demo](https://ocastorena.github.io/reddit-lite/)**
-
-[![CI](https://github.com/ocastorena/reddit-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/ocastorena/reddit-lite/actions/workflows/ci.yml)
 
 ## Features
 
