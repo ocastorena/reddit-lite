@@ -20,12 +20,13 @@ const SubredditsList = ({ onSubredditSelect }) => {
   const hasError = useSelector(hasSubredditsError);
   const errorMessage = useSelector(selectSubredditsErrorMessage);
   const currentSubreddit = useSelector(selectCurrentSubreddit);
+  const currentSubredditId = currentSubreddit.id;
 
   useEffect(() => {
-    if (Object.keys(currentSubreddit).length === 0) {
+    if (!currentSubredditId) {
       dispatch(loadSubreddits());
     }
-  }, [dispatch, currentSubreddit]);
+  }, [dispatch, currentSubredditId]);
 
   return (
     <>
@@ -39,17 +40,6 @@ const SubredditsList = ({ onSubredditSelect }) => {
           <p className="text-sm text-zinc-400 mb-2">
             {errorMessage || "Failed to load subreddits."}
           </p>
-          <button
-            type="button"
-            onClick={() => dispatch(loadSubreddits())}
-            className="rounded-full bg-zinc-800 px-3 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
-          >
-            Retry
-          </button>
-        </div>
-      ) : hasError ? (
-        <div className="px-2">
-          <p className="text-sm text-zinc-400 mb-2">Failed to load subreddits.</p>
           <button
             type="button"
             onClick={() => dispatch(loadSubreddits())}
@@ -75,11 +65,7 @@ const SubredditsList = ({ onSubredditSelect }) => {
               >
                 <img
                   className="w-6 h-6 rounded-full bg-zinc-100"
-                  src={
-                    subreddit.icon_img
-                      ? subreddit.icon_img
-                      : defaultSubredditUrl
-                  }
+                  src={subreddit.icon_img || defaultSubredditUrl}
                   alt={`${subreddit.display_name_prefixed} icon`}
                   onError={(event) => {
                     event.currentTarget.onerror = null;

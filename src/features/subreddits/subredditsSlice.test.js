@@ -1,13 +1,16 @@
-import reducer from "./subredditsSlice.js"
+import reducer, { setCurrentSubreddit } from "./subredditsSlice.js"
 import {
   loadCurrentSubredditDetails,
   loadSubreddits,
 } from "./subredditsThunks.js"
 import {
   isLoadingSubreddits,
+  hasSubredditsError,
+  selectSubredditsErrorMessage,
   selectAllSubreddits,
   selectCurrentSubreddit,
   selectSubredditDetails,
+  isLoadingSubredditDetails,
 } from "./subredditsSelectors.js"
 
 describe("subredditsSlice", () => {
@@ -67,6 +70,27 @@ describe("subredditsSlice", () => {
       expect(activeRejectedState.hasError).toBe(true)
       expect(activeRejectedState.errorMessage).toBe("Request failed")
     })
+
+    it("ignores stale rejected responses", () => {
+      const pendingState = reducer(undefined, loadSubreddits.pending("req1"))
+
+      const staleRejected = reducer(
+        pendingState,
+        loadSubreddits.rejected(new Error(), "req2", undefined, "Stale error"),
+      )
+      expect(staleRejected.isLoadingSubreddits).toBe(true)
+      expect(staleRejected.hasError).toBe(false)
+    })
+
+    it("defaults currentSubreddit to {} when payload is empty", () => {
+      const pendingState = reducer(undefined, loadSubreddits.pending("req1"))
+      const fulfilled = reducer(
+        pendingState,
+        loadSubreddits.fulfilled([], "req1"),
+      )
+      expect(fulfilled.currentSubreddit).toEqual({})
+      expect(fulfilled.subreddits).toEqual([])
+    })
   })
 
   describe("loadCurrentSubredditDetails lifecycle", () => {
@@ -98,6 +122,36 @@ describe("subredditsSlice", () => {
       expect(rejectedState.hasError).toBe(true)
       expect(rejectedState.errorMessage).toBe("Rejected")
     })
+
+    it("ignores stale fulfilled details responses", () => {
+      const pendingState = reducer(
+        undefined,
+        loadCurrentSubredditDetails.pending("req1", "reactjs"),
+      )
+      const staleState = reducer(
+        pendingState,
+        loadCurrentSubredditDetails.fulfilled(
+          { display_name: "stale" },
+          "req2",
+          "reactjs",
+        ),
+      )
+      expect(staleState.isLoadingSubredditDetails).toBe(true)
+      expect(staleState.subredditDetails).toEqual({})
+    })
+
+    it("ignores stale rejected details responses", () => {
+      const pendingState = reducer(
+        undefined,
+        loadCurrentSubredditDetails.pending("req1", "reactjs"),
+      )
+      const staleState = reducer(
+        pendingState,
+        loadCurrentSubredditDetails.rejected(null, "req2", "reactjs"),
+      )
+      expect(staleState.isLoadingSubredditDetails).toBe(true)
+      expect(staleState.hasError).toBe(false)
+    })
   })
 
   describe("selectors", () => {
@@ -125,6 +179,38 @@ describe("subredditsSlice", () => {
         display_name: "javascript",
       })
       expect(selectSubredditDetails(state).subscribers).toBe(42)
+      expect(hasSubredditsError(state)).toBe(false)
+      expect(selectSubredditsErrorMessage(state)).toBe(null)
+      expect(isLoadingSubredditDetails(state)).toBe(false)
+    })
+
+    it("reads error state correctly", () => {
+      const state = {
+        popularSubreddits: {
+          currentSubreddit: {},
+          subreddits: [],
+          isLoadingSubreddits: false,
+          subredditsRequestId: null,
+          hasError: true,
+          errorMessage: "Something went wrong",
+          subredditDetails: {},
+          isLoadingSubredditDetails: true,
+          subredditDetailsRequestId: "req1",
+        },
+      }
+
+      expect(hasSubredditsError(state)).toBe(true)
+      expect(selectSubredditsErrorMessage(state)).toBe("Something went wrong")
+      expect(isLoadingSubredditDetails(state)).toBe(true)
+    })
+  })
+
+  describe("setCurrentSubreddit action", () => {
+    it("updates currentSubreddit", () => {
+      const initial = reducer(undefined, { type: "unknown" })
+      const newSub = { id: "s5", display_name: "vue" }
+      const state = reducer(initial, setCurrentSubreddit(newSub))
+      expect(state.currentSubreddit).toEqual(newSub)
     })
   })
 })

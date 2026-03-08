@@ -94,27 +94,16 @@ const Card = ({ post, subreddit }) => {
     setShowComments((prevShowComments) => !prevShowComments);
   };
 
-  const handleUpvote = () => {
-    if (voteStatus === "upvoted") {
-      setVoteCount((prevVoteCount) => prevVoteCount - 1);
+  const handleVote = (direction) => {
+    const isUndo = voteStatus === direction;
+    if (isUndo) {
+      setVoteCount((prev) => prev + (direction === "upvoted" ? -1 : 1));
       setVoteStatus(null);
     } else {
-      setVoteCount(
-        (prevVoteCount) => prevVoteCount + (voteStatus === "downvoted" ? 2 : 1)
-      );
-      setVoteStatus("upvoted");
-    }
-  };
-
-  const handleDownvote = () => {
-    if (voteStatus === "downvoted") {
-      setVoteCount((prevVoteCount) => prevVoteCount + 1);
-      setVoteStatus(null);
-    } else {
-      setVoteCount(
-        (prevVoteCount) => prevVoteCount - (voteStatus === "upvoted" ? 2 : 1)
-      );
-      setVoteStatus("downvoted");
+      const opposite = direction === "upvoted" ? "downvoted" : "upvoted";
+      const swing = voteStatus === opposite ? 2 : 1;
+      setVoteCount((prev) => prev + (direction === "upvoted" ? swing : -swing));
+      setVoteStatus(direction);
     }
   };
 
@@ -175,7 +164,7 @@ const Card = ({ post, subreddit }) => {
       <footer className="flex items-center space-x-3 mt-2.5 text-zinc-500">
         <div className="flex items-center rounded-full bg-zinc-800">
           <button
-            onClick={handleUpvote}
+            onClick={() => handleVote("upvoted")}
             aria-label="Upvote"
             className={`flex items-center py-1.5 px-2 rounded-full hover:bg-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-500 transition-colors ${voteStatus === "upvoted" ? "text-green-500" : "text-zinc-200"}`}
           >
@@ -189,7 +178,7 @@ const Card = ({ post, subreddit }) => {
             {formatNumber(voteCount)}
           </span>
           <button
-            onClick={handleDownvote}
+            onClick={() => handleVote("downvoted")}
             aria-label="Downvote"
             className={`flex items-center py-1.5 px-2 rounded-full hover:bg-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-500 transition-colors ${voteStatus === "downvoted" ? "text-red-500" : "text-zinc-200"}`}
           >
