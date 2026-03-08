@@ -1,5 +1,5 @@
 const IS_DEV = import.meta.env.DEV;
-const BASE_URL = IS_DEV ? "/reddit-api" : "https://www.reddit.com";
+const BASE_URL = IS_DEV ? "/reddit-api" : "https://reddit-proxy.omarcastorena11.workers.dev";
 const DEFAULT_TIMEOUT_MS = 10000;
 const DEFAULT_MAX_RETRIES = 2;
 const BASE_RETRY_DELAY_MS = 400;
