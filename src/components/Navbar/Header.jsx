@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useDispatch } from "react-redux"
 import { setFilteredPosts } from "../../features/postsFeed/postsFeedSlice"
 // Components
@@ -13,12 +13,20 @@ const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const dispatch = useDispatch()
+  const debounceRef = useRef(null)
 
   const handleInputChange = (e) => {
     const nextSearchTerm = e.target.value
     setSearchTerm(nextSearchTerm)
-    dispatch(setFilteredPosts(nextSearchTerm))
+    clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      dispatch(setFilteredPosts(nextSearchTerm))
+    }, 300)
   }
+
+  useEffect(() => {
+    return () => clearTimeout(debounceRef.current)
+  }, [])
 
   const handleFormSubmit = (e) => {
     e.preventDefault()

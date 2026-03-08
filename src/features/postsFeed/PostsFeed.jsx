@@ -47,21 +47,6 @@ const PostsFeed = () => {
     );
   }
 
-  if (hasError) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-        <p className="text-zinc-400">Failed to load posts. Please try again.</p>
-        <button
-          type="button"
-          onClick={() => dispatch(loadAllPosts(currentSubredditName))}
-          className="rounded-full bg-zinc-800 px-4 py-2 text-sm text-zinc-100 hover:bg-zinc-700"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
   if (posts.length === 0) {
     return (
       <div className="flex justify-center items-center h-full">

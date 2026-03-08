@@ -12,6 +12,19 @@ import { formatNumber } from "../../../utils/formatNumber";
 import defaultSubredditUrl from "../../../assets/letter-r.png";
 import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 
+const formatDate = (timestamp) => {
+  if (!timestamp) {
+    return "Unknown";
+  }
+
+  const date = new Date(timestamp * 1000);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
 const SubredditDetails = () => {
   const subreddit = useSelector(selectCurrentSubreddit);
   const subredditDetails = useSelector(selectSubredditDetails);
@@ -29,19 +42,6 @@ const SubredditDetails = () => {
       dispatch(loadCurrentSubredditDetails(subredditName));
     }
   }, [dispatch, subredditName, subredditDetails.display_name]);
-
-  const formatDate = (timestamp) => {
-    if (!timestamp) {
-      return "Unknown";
-    }
-
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   if (!subredditName) {
     return <p className="text-sm text-zinc-400">Select a subreddit to view details.</p>;
@@ -75,11 +75,7 @@ const SubredditDetails = () => {
       )}
       <div className="flex flex-col items-center text-center mb-4">
         <img
-          src={
-            subredditDetails.icon_img
-              ? subredditDetails.icon_img
-              : defaultSubredditUrl
-          }
+          src={subredditDetails.icon_img || defaultSubredditUrl}
           alt={`${displayName || "Subreddit"} icon`}
           className={`w-14 h-14 rounded-full mb-2 bg-zinc-100${bannerUrl ? " -mt-10 ring-4 ring-zinc-900" : ""}`}
           onError={(event) => {
